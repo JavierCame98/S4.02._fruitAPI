@@ -30,6 +30,29 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
 
     }
+    @ExceptionHandler(FruitNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleNotFound(FruitNotFoundException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FruitAlreadyExistsException.class)
+    public ResponseEntity<ErrorDetails> handleAlreadyExist(FruitAlreadyExistsException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDetails> handleGeneralError(Exception ex) {
+        return buildResponse("An unexpected internal error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ResponseEntity<ErrorDetails> buildResponse(String message, HttpStatus status) {
+        ErrorDetails details = new ErrorDetails(LocalDateTime.now(), status.value(), message);
+        return new ResponseEntity<>(details, status);
+    }
+
+    public record ErrorDetails(LocalDateTime timestamp, int status, String message) {}
+
+
 
     public record ValidationErrorDetails(LocalDateTime timestamp, int status, String message, Map<String, String> errors) {}
 
